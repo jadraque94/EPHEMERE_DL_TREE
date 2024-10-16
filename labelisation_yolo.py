@@ -1,24 +1,17 @@
 import geopandas as gpd
 import matplotlib.pyplot as plt
+import rasterio as rio
 
-
-path = 'C:/Users/rahim/Deeplearning_oct_2024/CHADI_DeepLearning_Tree/Traning_coconut_palm.shp'
-
+path_shp = 'C:/Users/rahim/Deeplearning_oct_2024/CHADI_DeepLearning_Tree/Traning_coconut_palm.shp'
+path_img = 'C:/Users/rahim/Deeplearning_oct_2024/CHADI_DeepLearning_Tree/Pleiades_14feb2023_pansharpen_Berambadi_decoup_SansForet.tif'
 
 # Load the shapefile
-shape = gpd.read_file(path)
+shape = gpd.read_file(path_shp)
+image = rio.open(path_img)
+img_width = image.width
+img_height = image.height
 
-# Plot the shapefile geometries
-shape.plot()
-print(shape)
-
-
-# we will extract the boundind box and after convert to yolo format
-for idx, row in shape.iterrows():
-    minx, miny, maxx, maxy = row.geometry.bounds
-    print(f"Bounding Box for feature {idx}: {minx}, {miny}, {maxx}, {maxy}")
-
-def convert_to_yolo_format(minx, miny, maxx, maxy, img_width, img_height, class_id=0):
+def convert_to_yolo_format(minx, miny, maxx, maxy, img_width, img_height, class_id=1):
     # Calculate center coordinates, width, and height of the bounding box
     x_center = (minx + maxx) / 2.0 / img_width
     y_center = (miny + maxy) / 2.0 / img_height
@@ -26,14 +19,19 @@ def convert_to_yolo_format(minx, miny, maxx, maxy, img_width, img_height, class_
     height = (maxy - miny) / img_height
 
     # YOLO format string
-    return f"{class_id} {x_center} {y_center} {width} {height}"
+    return f"{class_id} {x_center} {y_center} {width} {height}\n"
 
-# Example usage
 
-img_width, img_height = 1024, 1024  # Example image dimensions
+def convert_txt(shape, image, path = './first_yolo.txt'):
+    img_width = image.width
+    img_height = image.height
+    with open(path, "a") as f:
+    
 
-minx, miny, maxx, maxy = (10, 20, 200, 300)  # Example bounding box
-
-yolo_annotation = convert_to_yolo_format(minx, miny, maxx, maxy, img_width, img_height)
-
-print(yolo_annotation)  # Output: 0 0.102 0.156 0.186 0.273
+        for idx, row in shape.iterrows():
+            minx, miny, maxx, maxy = row.geometry.bounds
+            print(f"Bounding Box for feature {idx}: {minx}, {miny}, {maxx}, {maxy}")
+            yolo_annotation = convert_to_yolo_format(minx, miny, maxx, maxy, img_width, img_height)
+            f.write(yolo_annotation)
+    
+convert_txt(shape, image)
