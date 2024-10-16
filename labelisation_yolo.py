@@ -22,7 +22,7 @@ def convert_to_yolo_format(minx, miny, maxx, maxy, img_width, img_height, class_
     return f"{class_id} {x_center} {y_center} {width} {height}\n"
 
 
-def convert_txt(shape, image, path = './first_yolo.txt'):
+def convert_txt(shape, image, path = './first_yolo1.txt'):
     img_width = image.width
     img_height = image.height
     with open(path, "a") as f:
