@@ -4,8 +4,8 @@ import geopandas as gpd
 import matplotlib.pyplot as plt
 
 # Step 1: Open the GeoTIFF image using rasterio
-path = "C:/Users/rahim/Deeplearning_oct_2024/CHADI_DeepLearning_Tree/Pleiades_14feb2023_petite.tif"
-path_shp = 'C:/Users/rahim/Deeplearning_oct_2024/CHADI_DeepLearning_Tree/training_class1.shp'
+path = "../Programme_DL/images/val/val_image_yolo_1.tif"
+path_shp = "../Programme_DL/shapefile/val/shape_yolo_val.shp"
 gdf = gpd.read_file(path_shp)
 
 
@@ -51,7 +51,7 @@ for idx, row in gdf.iterrows():
     yolo_annotations.append(yolo_line)
 
 # Step 6: Save YOLO annotations to a text file
-output_txt_path = 'yolo_annotations.txt'
+output_txt_path = '../Programme_DL/annotations/val/anno_val_1.txt'
 with open(output_txt_path, 'w') as f:
     for annotation in yolo_annotations:
         f.write(f"{annotation}\n")
