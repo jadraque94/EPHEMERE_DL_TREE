@@ -4,7 +4,7 @@ import matplotlib.patches as patches
 import numpy as np
 
 # Step 1: Open the GeoTIFF image using rasterio
-path = "C:/Users/rahim/Deeplearning_oct_2024/CHADI_DeepLearning_Tree/Pleiades_14feb2023_petite.tif"
+path = "./images/train/train_image_yolo_1.tif"
 with rasterio.open(path) as src:
     # Read the first band of the image (assuming it's grayscale)
     red_band = src.read(1)  # Read band 1
@@ -16,7 +16,7 @@ with rasterio.open(path) as src:
     image_transform = src.transform
 
 # Step 2: Read YOLO annotations from a file
-yolo_txt_path = './yolo_annotations.txt'
+yolo_txt_path = './label'
 annotations = []
 with open(yolo_txt_path, 'r') as file:
     for line in file:
