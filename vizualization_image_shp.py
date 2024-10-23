@@ -1,11 +1,11 @@
 import rasterio
-from rasterio.plot import show
 import geopandas as gpd
 import matplotlib.pyplot as plt
+import glob
 
 # Step 1: Open the GeoTIFF image using rasterio
-path = "./Programme_DL/images/train/train_image_yolo_1.tif"
-path_shp = "./Programme_DL/shapefile/train/train_yolo_1.shp"
+path = "./images/train/train_image_yolo_1.tif"
+path_shp = "./shapefile/train/train_yolo_1.shp"
 gdf = gpd.read_file(path_shp)
 
 
@@ -51,10 +51,28 @@ for idx, row in gdf.iterrows():
     yolo_annotations.append(yolo_line)
 
 # Step 6: Save YOLO annotations to a text file
-output_txt_path = './Programme_DL/label/train/anno_train_1.txt'
-with open(output_txt_path, 'w') as f:
-    for annotation in yolo_annotations:
-        f.write(f"{annotation}\n")
+# output_txt_path = './Programme_DL/label/train/anno_train_1.txt'
+# with open(output_txt_path, 'w') as f:
+#     for annotation in yolo_annotations:
+#         f.write(f"{annotation}\n")
 
-print("YOLO annotations saved!")
+# print("YOLO annotations saved!")
+    
+for i in range(8,10):
+    file = f"./classe_1/shapefile/tree_{i}.shp"
+    gdf = gpd.read_file(file)
+    yolo_annotations = []
+    for idx, row in gdf.iterrows():
+        polygon = row['geometry']
+        
+        # Convert polygon to YOLO format (bounding box)
+        center_x, center_y, bbox_width, bbox_height = polygon_to_yolo(polygon, image_width, image_height)
+        
+        # Create YOLO annotation line
+        yolo_line = f"{class_id} {center_x} {center_y} {bbox_width} {bbox_height}"
+        yolo_annotations.append(yolo_line)
 
+    output_txt_path = f'./label/val/anno_val_{i}.txt'
+    with open(output_txt_path, 'w') as f:
+        for annotation in yolo_annotations:
+            f.write(f"{annotation}\n")
