@@ -4,21 +4,21 @@ import matplotlib.pyplot as plt
 import glob
 
 # Step 1: Open the GeoTIFF image using rasterio
-path = "./images/train/train_image_yolo_1.tif"
-path_shp = "./shapefile/train/train_yolo_1.shp"
-gdf = gpd.read_file(path_shp)
+# path = "./images/train/train_image_yolo_1.tif"
+# path_shp = "./shapefile/train/train_yolo_1.shp"
+# gdf = gpd.read_file(path_shp)
 
 
-with rasterio.open(path) as src:
-    image_width = src.width
-    image_height = src.height
-    image_crs = src.crs
-    image_bounds = src.bounds
-    image_transform = src.transform  # For transforming coordinates
+# with rasterio.open(path) as src:
+#     image_width = src.width
+#     image_height = src.height
+#     image_crs = src.crs
+#     image_bounds = src.bounds
+#     image_transform = src.transform  # For transforming coordinates
 
-# Step 3: Reproject the shapefile to match the CRS of the image (if necessary)
-if gdf.crs != image_crs:
-    gdf = gdf.to_crs(image_crs)
+# # Step 3: Reproject the shapefile to match the CRS of the image (if necessary)
+# if gdf.crs != image_crs:
+#     gdf = gdf.to_crs(image_crs)
 
 # Step 4: Function to convert bounding box to YOLO format
 def polygon_to_yolo(polygon, image_width, image_height):
@@ -40,15 +40,15 @@ def polygon_to_yolo(polygon, image_width, image_height):
 yolo_annotations = []
 class_id = 1  # Assuming one class, you can modify this based on your classes# Assuming one class, you can modify this based on your classes
 
-for idx, row in gdf.iterrows():
-    polygon = row['geometry']
+# for idx, row in gdf.iterrows():
+#     polygon = row['geometry']
     
-    # Convert polygon to YOLO format (bounding box)
-    center_x, center_y, bbox_width, bbox_height = polygon_to_yolo(polygon, image_width, image_height)
+#     # Convert polygon to YOLO format (bounding box)
+#     center_x, center_y, bbox_width, bbox_height = polygon_to_yolo(polygon, image_width, image_height)
     
-    # Create YOLO annotation line
-    yolo_line = f"{class_id} {center_x} {center_y} {bbox_width} {bbox_height}"
-    yolo_annotations.append(yolo_line)
+#     # Create YOLO annotation line
+#     yolo_line = f"{class_id} {center_x} {center_y} {bbox_width} {bbox_height}"
+#     yolo_annotations.append(yolo_line)
 
 # Step 6: Save YOLO annotations to a text file
 # output_txt_path = './Programme_DL/label/train/anno_train_1.txt'
@@ -58,9 +58,17 @@ for idx, row in gdf.iterrows():
 
 # print("YOLO annotations saved!")
     
-for i in range(8,10):
-    file = f"./classe_1/shapefile/tree_{i}.shp"
-    gdf = gpd.read_file(file)
+for i in range(15,20):
+    file_tif = f'./bi_classe/image/image{i}.tif'
+    file_shp = f"./bi_classe/shapefile/tree{i}.shp"
+
+    with rasterio.open(file_tif) as src:
+        image_width = src.width
+        image_height = src.height
+        image_crs = src.crs
+        image_bounds = src.bounds
+        image_transform = src.transform
+    gdf = gpd.read_file(file_shp)
     yolo_annotations = []
     for idx, row in gdf.iterrows():
         polygon = row['geometry']
@@ -72,7 +80,7 @@ for i in range(8,10):
         yolo_line = f"{class_id} {center_x} {center_y} {bbox_width} {bbox_height}"
         yolo_annotations.append(yolo_line)
 
-    output_txt_path = f'./label/val/anno_val_{i}.txt'
+    output_txt_path = f'./labels/test/image{i}.txt'
     with open(output_txt_path, 'w') as f:
         for annotation in yolo_annotations:
             f.write(f"{annotation}\n")

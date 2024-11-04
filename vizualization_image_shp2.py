@@ -1,10 +1,10 @@
-import rasterio
+import rasterio # type: ignore
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import numpy as np
 
 # Step 1: Open the GeoTIFF image using rasterio
-path = "./images/train/train_image_yolo_1.tif"
+path = "./classe_1/image/image4.tif"
 with rasterio.open(path) as src:
     # Read the first band of the image (assuming it's grayscale)
     red_band = src.read(1)  # Read band 1
@@ -16,7 +16,7 @@ with rasterio.open(path) as src:
     image_transform = src.transform
 
 # Step 2: Read YOLO annotations from a file
-yolo_txt_path = './label'
+yolo_txt_path = './labels/train/image4.txt'
 annotations = []
 with open(yolo_txt_path, 'r') as file:
     for line in file:
