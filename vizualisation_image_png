@@ -1,23 +1,18 @@
-import rasterio # type: ignore
+import cv2 # type: ignore
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import numpy as np
 
-# Step 1: Open the GeoTIFF image using rasterio
-path = "./bi_classe/image/image8.tif"
-with rasterio.open(path) as src:
-    # Read the first band of the image (assuming it's grayscale)
-    red_band = src.read(1)  # Read band 1
-    green_band = src.read(2)  # Read band 2
-    blue_band = src.read(3)  # Read band 3
-    rgb_image = np.dstack((red_band, green_band, blue_band))
-    image_width = src.width
-    image_height = src.height
-    image_transform = src.transform
+
+# Step 1: Open the png 
+path = "./classe_pca/image10.png"
+image = cv2.imread(path)
+image_height, image_width = image.shape[:2]
 
 # Step 2: Read YOLO annotations from a file
-yolo_txt_path = './labels/train/image8.txt'
+yolo_txt_path = './labels/train/image10.txt'
 annotations = []
+
 with open(yolo_txt_path, 'r') as file:
     for line in file:
         # Parse the YOLO annotation line
@@ -34,7 +29,7 @@ def yolo_to_pixel(center_x, center_y, bbox_width, bbox_height, img_width, img_he
 
 # Step 4: Plot the image and draw rectangles for YOLO bounding boxes
 fig, ax = plt.subplots(figsize=(15, 15))
-test = rgb_image / np.max(rgb_image)
+test = image / np.max(image)
 
 brightness_factor = 3  # You can adjust this value for more/less brightness
 bright_image = test * brightness_factor
@@ -56,5 +51,5 @@ for annotation in annotations:
     ax.add_patch(rect)
 
 # Show the final image with bounding boxes
-plt.title("YOLO Annotations Overlaid on GeoTIFF Image")
+plt.title("YOLO Annotations Overlaid on png Image")
 plt.show()

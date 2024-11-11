@@ -32,6 +32,7 @@ def convert_txt(shape, image, path = './first_yolo.txt'):
         for idx, row in shape.iterrows():
             minx, miny, maxx, maxy = row.geometry.bounds
             print(f"Bounding Box for feature {idx}: {minx}, {miny}, {maxx}, {maxy}")
+            
             yolo_annotation = convert_to_yolo_format(minx, miny, maxx, maxy, img_width, img_height)
             f.write(yolo_annotation)
 
