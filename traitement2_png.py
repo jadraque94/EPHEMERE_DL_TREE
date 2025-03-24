@@ -4,7 +4,7 @@ import glob
 
 n = 194
 
-#ce script permet de changer le numero des classes et de leur attribuer 0 à tous les arbres la classe 0
+# ce script permet de changer le numero des classes et de leur attribuer 0 à tous les arbres la classe 0
 # for i in range(1,n):
 #     file_txt = f"C:/Users/rahim/Deeplearning_oct_2024/Pleiade_2023_geo/Pleiade_Vue1_texte/image{i}.txt"
 
@@ -24,20 +24,21 @@ n = 194
 
 
 
-for i in range(1,n):
+# for i in range(n,400):
 
-    file_txt = f"C:/Users/rahim/Deeplearning_oct_2024/Pleiade_2023_geo/Pleiade_Vue1_2023_traitement/Pleiade_Vue1_texte/image{i}.txt"
+#     file_txt = f"C:/Users/rahim/Deeplearning_oct_2024/Pleiade_2023_geo/Pleiade_Vue3_2023_traitement/Pleiade_Vue3_texte/image{i}.txt"
 
-    output_file = f"C:/Users/rahim/Deeplearning_oct_2024/Pleiade_2023_geo/Pleiade_Vue1_2023_traitement/Pleiade_Vue1_classe0/image{i}.txt" 
-    with open(file_txt, "r") as infile:
-        lines = infile.readlines()
+#     output_file = f"C:/Users/rahim/Deeplearning_oct_2024/Pleiade_2023_geo/Pleiade_Vue3_2023_traitement/Pleiade_Vue3_classe0/image{i}.txt" 
+#     with open(file_txt, "r") as infile:
+#         lines = infile.readlines()
             
-    lines_to_keep = [line for line in lines if not line.startswith('1')]
-    print(lines_to_keep)
-    if len(lines_to_keep) != 0:
-        with open(output_file, "w") as outfile:
-            outfile.writelines(lines_to_keep)
-            print(f"Modified file saved to {output_file}")
+#     lines_to_keep = [line for line in lines if not line.startswith('1')]
+#     if len(lines_to_keep) != 0:
+#         with open(output_file, "w") as outfile:
+#             outfile.writelines(lines_to_keep)
+#             print(f"Modified file saved to {output_file}")
+
+
 
 
 '''
@@ -46,16 +47,14 @@ Maintenant on va associer chaque fichier texte avec son image correspondante
 
 '''
 
-j = 1
+j = 181
 
-p=195
+for i in range(n,400):
 
-for i in range(1,p):
-
-    file_img = f"C:/Users/rahim/Deeplearning_oct_2024/Pleiade_2023_geo/Pleiade_Vue1_2023_traitement/Pleiade_Vue1_image_png/image{i}.png"
-    output_file_img = f"C:/Users/rahim/Deeplearning_oct_2024/Pleiade_2023_geo/Pleiade_Vue1_2023_traitement/Pleiade_Vue1_final_img/image{j}.png"
-    output_file_txt = f"C:/Users/rahim/Deeplearning_oct_2024/Pleiade_2023_geo/Pleiade_Vue1_2023_traitement/Pleiade_Vue1_final_txt/image{j}.txt"
-    file_txt = f"C:/Users/rahim/Deeplearning_oct_2024/Pleiade_2023_geo/Pleiade_Vue1_2023_traitement/Pleiade_Vue1_classe0/image{i}.txt" 
+    file_img = f"C:/Users/rahim/Deeplearning_oct_2024/Pleiade_2023_geo/Pleiade_Vue3_2023_traitement/Pleiade_Vue3_image_png/image{i}.png"
+    output_file_img = f"C:/Users/rahim/Deeplearning_oct_2024/Pleiade_2023_geo/Pleiade_Vue3_2023_traitement/Pleiade_Vue3_final_img/image{j}.png"
+    output_file_txt = f"C:/Users/rahim/Deeplearning_oct_2024/Pleiade_2023_geo/Pleiade_Vue3_2023_traitement/Pleiade_Vue3_final_txt/image{j}.txt"
+    file_txt = f"C:/Users/rahim/Deeplearning_oct_2024/Pleiade_2023_geo/Pleiade_Vue3_2023_traitement/Pleiade_Vue3_classe0/image{i}.txt" 
 
     
     if os.path.exists(file_txt):

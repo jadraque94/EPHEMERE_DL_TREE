@@ -13,7 +13,7 @@ class Preprocessing:
      
      """Handles image loading, conversion, and saving."""
 
-def __init__(self, path_grid = 'grid', path_tif = ' tif', path_label="label", n= 1):
+def __init__(self, path_grid = 'grid', path_tif = ' tif', path_label="label", n = 1):
         
         self.path_label = path_label
         self.path_grid = path_grid
@@ -23,9 +23,6 @@ def __init__(self, path_grid = 'grid', path_tif = ' tif', path_label="label", n=
 
 
 def preprocess_grid(self):
-    grid = gpd.read_file(self.path_grid)
-    train_point = gpd.read_file(self.path_label)
-
     classe_geo = []
     classe_img = []
 

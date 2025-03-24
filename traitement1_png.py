@@ -26,10 +26,10 @@ yolo_annotations = []
 # print("YOLO annotations saved!")
 n = 194
 
-for i in range(1,n):
-    file_tif = f'C:/Users/rahim/Deeplearning_oct_2024/Pleiade_2023_geo/Pleiade_Vue1_2023_traitement/Pleiade_Vue1_image/image{i}.tif'
-    file_shp = f"C:/Users/rahim/Deeplearning_oct_2024/Pleiade_2023_geo/Pleiade_Vue1_2023_traitement/Pleiade_Vue1_label/image{i}.shp"
-    file_png = f'C:/Users/rahim/Deeplearning_oct_2024/Pleiade_2023_geo/Pleiade_Vue1_2023_traitement/Pleiade_Vue1_image_png/image{i}.png'
+for i in range(n,400):
+    file_tif = f'C:/Users/rahim/Deeplearning_oct_2024/Pleiade_2023_geo/Pleiade_Vue3_2023_traitement/Pleiade_Vue3_image/image{i}.tif'
+    file_shp = f"C:/Users/rahim/Deeplearning_oct_2024/Pleiade_2023_geo/Pleiade_Vue3_2023_traitement/Pleiade_Vue3_label/image{i}.shp"
+    file_png = f'C:/Users/rahim/Deeplearning_oct_2024/Pleiade_2023_geo/Pleiade_Vue3_2023_traitement/Pleiade_Vue3_image_png/image{i}.png'
 
 
 
@@ -54,7 +54,7 @@ for i in range(1,n):
         yolo_line = f"{class_id} {center_x} {center_y} {bbox_width} {bbox_height}"
         yolo_annotations.append(yolo_line)
 
-    output_txt_path = f'C:/Users/rahim/Deeplearning_oct_2024/Pleiade_2023_geo/Pleiade_Vue1_2023_traitement/Pleiade_Vue1_texte/image{i}.txt'
+    output_txt_path = f'C:/Users/rahim/Deeplearning_oct_2024/Pleiade_2023_geo/Pleiade_Vue3_2023_traitement/Pleiade_Vue3_texte/image{i}.txt'
     with open(output_txt_path, 'w') as f:
         for annotation in yolo_annotations:
             f.write(f"{annotation}\n")

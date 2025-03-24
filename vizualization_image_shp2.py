@@ -4,7 +4,7 @@ import matplotlib.patches as patches
 import numpy as np
 
 # Step 1: Open the GeoTIFF image using rasterio
-path = "./bi_classe/image/image5.tif"
+path = "./YOLO_SEMI_supervised/train_image/image13.tif"
 with rasterio.open(path) as src:
     # Read the first band of the image (assuming it's grayscale)
     red_band = src.read(1)  # Read band 1
@@ -16,7 +16,7 @@ with rasterio.open(path) as src:
     image_transform = src.transform
 
 # Step 2: Read YOLO annotations from a file
-yolo_txt_path = './labels/train/image5.txt'
+yolo_txt_path = './YOLO_SEMI_supervised/train_box/image13.txt'
 annotations = []
 with open(yolo_txt_path, 'r') as file:
     for line in file:
@@ -36,7 +36,7 @@ def yolo_to_pixel(center_x, center_y, bbox_width, bbox_height, img_width, img_he
 fig, ax = plt.subplots(figsize=(15, 15))
 test = rgb_image / np.max(rgb_image)
 
-brightness_factor = 3  # You can adjust this value for more/less brightness
+brightness_factor = 1.7  # You can adjust this value for more/less brightness
 bright_image = test * brightness_factor
 
 # Step 3: Clip the pixel values to avoid overflow (ensure values are within [0, 255] for 8-bit images)
