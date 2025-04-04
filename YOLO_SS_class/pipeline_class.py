@@ -17,18 +17,23 @@ import geopandas as gpd
 class YoloProcessor:
     
     
-    def __init__(self, path_tif, path_grid, path_tree, split_ratio = 0.75, output='./image_test/'):
+    def __init__(self, path_tif, path_grid, path_tree, band1 , band2, band3 , split_ratio = 0.75,  output='./image_test/'):
         self.path_tif = path_tif
         self.path_tree = path_tree
         self.path_grid = path_grid
+        self.band1 = band1 
+        self.band2 = band2
+        self.band3 = band3
         self.split_ratio = split_ratio
+
+
         self.output = Path(output)
     
 
 
 
-    def extract_images(self)-> [np.ndarray, dict] : # we will store the small images cutting by the grid in image_array and store the metadata and corner associated at each image and the
-        grid = gpd.read_file(self.path_grid).head(100)
+    def extract_images(self)-> [ np.ndarray, dict] : # we will store the small images cutting by the grid in image_array and store the metadata and corner associated at each image and the
+        grid = gpd.read_file(self.path_grid).head(100) #100 premières images pour vérifier
 
         image_array = []
         dict_transform = {}
@@ -36,24 +41,58 @@ class YoloProcessor:
             for idx, row in grid.iterrows():
                 geometry = [row.geometry]
                 out_image, out_transform = mask(src, geometry, crop=True)
+                out_image = np.transpose(out_image, (1, 2, 0))  # Transpose to (H, W, C)
 
-                out_meta = src.meta.copy()
-                out_meta.update({
-                    "driver": "GTiff",
-                    "height": out_image.shape[1],
-                    "width": out_image.shape[2],
-                    "transform": out_transform
-                })
-                new_bounds = rasterio.transform.array_bounds(out_image.shape[1],out_image.shape[2],out_transform)
-                #print(new_bounds)
+                ##condition which allow us to be get just 3 bands or 1 band in the case of panchromatic, because yolo work
+                if out_image.shape[2] > 3 : #multispecral case
+                    row_keep = [self.band1,self.band2,self.band3]
+                    keep_image = out_image[:,:,row_keep]
+                    band_normalized = cv2.normalize(keep_image, None, 0, 255, cv2.NORM_MINMAX).astype(np.uint8)
+
+                    print(band_normalized.shape)
+                    out_meta = src.meta.copy()
+                    out_meta.update({
+                        "driver": "GTiff",
+                        "height": band_normalized.shape[0],
+                        "width": band_normalized.shape[1],
+                        "transform": out_transform
+                    })
+
+                    new_bounds = rasterio.transform.array_bounds(band_normalized.shape[0],band_normalized.shape[1],out_transform)
+                
+                    image_array.append(band_normalized)
+                    dict_transform[idx, f'bounds{idx}'] = out_meta, new_bounds # we store the metadata and the 4 corners of every image in the dictionnary
+
             
-                image_array.append(out_image)
-                dict_transform[idx, f'bounds{idx}'] = out_meta, new_bounds # we store the metadata and the 4 corners of every image in the dictionnary
-                #print( idx, type(out_image))
+                
+                
+                elif  out_image.shape[2] <=3 :
+                    band_normalized = cv2.normalize(out_image, None, 0, 255, cv2.NORM_MINMAX).astype(np.uint8)
+
+                    print(band_normalized.shape)
+                    out_meta = src.meta.copy()
+                    out_meta.update({
+                        "driver": "GTiff",
+                        "height": band_normalized.shape[0],
+                        "width": band_normalized.shape[1],
+                        "transform": out_transform
+                    })
+
+                    new_bounds = rasterio.transform.array_bounds(band_normalized.shape[0],band_normalized.shape[1],out_transform)
+                    #print(new_bounds)
+                
+                    image_array.append(band_normalized)
+                    dict_transform[idx, f'bounds{idx}'] = out_meta, new_bounds # we store the metadata and the 4 corners of every image in the dictionnary
+
+
+                    #print( idx, type(out_image))
+                
+         
         return [image_array, dict_transform]
+
                 
 
-    def separate_grid_unlabel_label(self, array, dicti) -> [np.ndarray, np.ndarray] : #we will separate image regarding as there are any wrosnw of tree which has been delineated and store in unlabel or label dataset
+    def separate_grid_unlabel_label(self, array, dicti) -> [np.ndarray, pd.DataFrame, np.ndarray, dict, dict ] : #we will separate image regarding as there are any wrosnw of tree which has been delineated and store in unlabel or label dataset
         shape_tree = gpd.read_file(self.path_tree) #shapefile which contains the 524 polygons which represents every tree
         print("Nombre d'arbres délinées :", shape_tree.shape)
 
@@ -97,15 +136,15 @@ class YoloProcessor:
                 dicti_unlab[len(unlabel_image), f'bounds{len(unlabel_image)}'] = dicti[i, f'bounds{i}']
                 unlabel_image.append(array[i])
 
-        return label_image , valid_gdf, unlabel_image, dicti_lab, dicti_unlab
+        return label_image, valid_gdf, unlabel_image, dicti_lab, dicti_unlab
     
 
 
-    def train_test_split(self, gdf, image_label, dicti):
-       
+    def train_test_split(self, gdf, image_label, dicti) -> [np.ndarray, np.ndarray, dict, dict, pd.DataFrame, pd.DataFrame]:
 
         split_idx = int(self.split_ratio * len(image_label))
         print(split_idx)
+
         train_image, test_image = image_label[:split_idx], image_label[split_idx:]
         items = list(dicti.items())
         gdf_train , gdf_test = gdf[gdf['number_label'] < split_idx] , gdf[gdf['number_label'] >= split_idx]
@@ -153,73 +192,53 @@ class YoloProcessor:
             list_yolo.append(yolo_annotations)
         return list_yolo
 
- 
+    
+    @staticmethod
+    def create_folder(label, output):
 
-    def orthoimage_to_png_opencv(self, image):
+        os.makedirs(output, exist_ok =True)
+        for t in tqdm(range(len(label))):
 
-        list_png = []
-        for t in range(len(image)):
+            output_txt_path = os.path.join(output,f'image{t}.txt')
+            # print(output_txt_path)
+            with open(output_txt_path, 'w') as f:
+                for annotation in label[t] :
 
-            band = image[t]
-            # Normalize the band to 0-255 (8-bit grayscale)
-            band_normalized = cv2.normalize(band, None, 0, 255, cv2.NORM_MINMAX).astype(np.uint8)
-            list_png.append(band_normalized)
-            print(len(list_png))
-            # Save the normalized image as a PNG using OpenCV
-        return list_png
-
-
-def pansharpen_to_png(self, image , ouput_png_3bds):
-
-
-    for t in tqdm(range(len(list_image))):
-
-        with rasterio.open(list_image[t]) as dataset:
-        # Read the Red, Green, and NIR bands (assuming they are in order R, G, B, NIR)
-
-            print(dataset.count)
-            img_rgbnir = dataset.read([4, 3, 2])  # Exclude the 3rd band (Blue)
-            #print(np.unique(img_rgbnir))
-            band_normalized = cv2.normalize(img_rgbnir, None, 0, 255, cv2.NORM_MINMAX).astype(np.uint8)
-            #print(band_normalized.shape, np.unique(band_normalized))
-
-            # Save the new 3-band image
-            with rasterio.open(os.path.join(ouput_png_3bds, f'image{t}.png'),
-                'w', 
-                driver='GTiff',
-                height=band_normalized.shape[1],
-                width=band_normalized.shape[2],
-                count=3,  # Now 3 bands
-                dtype=band_normalized.dtype,
-                crs=dataset.crs,
-                transform=dataset.transform,
-            ) as dst:
-                dst.write(band_normalized)
-
-def run_pipeline(self):
-    print("Extraction des images...")
-    image_array , dicti = self.extract_images()
-
-    image_lab , gdf, image_unlab, dicti_lab, dicti_unlab = self.separate_grid_unlabel_label(image_array, dicti)
-    train_image, test_image , dict_train, dict_test , gdf_train , gdf_test = self.train_test_split( gdf, image_lab, dicti_lab )
-    yolo_train = self.convert_yolo(gdf_train,dict_train)
-    yolo_test = self.convert_yolo(gdf_test,dict_test)
-    new_png = self.orthoimage_to_png_opencv(train_image)
+                    values = annotation.split()
+                    if len(values) == 5:  # Ensure it has exactly 5 elements
+                        class_id, center_x, center_y, bbox_width, bbox_height = map(float, values)
+                        yolo_line = f"{class_id} {center_x} {center_y} {bbox_width} {bbox_height}"
+                    f.write(f"{yolo_line}\n")
 
 
-    return train_image, test_image , dict_train, yolo_test, yolo_train, new_png
+
+    def run_pipeline(self):
+        print("Extraction des images...")
+        image_array , dicti = self.extract_images()
+
+        image_lab , gdf, image_unlab, dicti_lab, dicti_unlab = self.separate_grid_unlabel_label(image_array, dicti)
+        train_image, test_image , dict_train, dict_test , gdf_train , gdf_test = self.train_test_split( gdf, image_lab, dicti_lab )
+        yolo_train = self.convert_yolo(gdf_train,dict_train)
+        yolo_test = self.convert_yolo(gdf_test,dict_test)
+
+
+        return yolo_train, yolo_test, train_image, test_image, image_unlab
 
 # Utilisation de la classe
 if __name__ == "__main__":
 
     #
     yolo_preprocessor = YoloProcessor(
-        path_tif="C:/Users/rahim/Deeplearning_oct_2024/Pleiade_2023_geo/Pleiades_Vue1_2023/C1_orthoimage_forward.tif",
+        path_tif="C:/Users/rahim/Deeplearning_oct_2024/Pleiade_2023_geo/Pleiades_Vue1_2023/Pansharpen_Vue1_20230214_0534580_Ortho.tif",
         path_tree="C:/Users/rahim/Deeplearning_oct_2024/Pleiade_2023_geo/TreeSample_ImagePleiade14feb2023_Pansharpen.shp",
         path_grid="C:/Users/rahim/Deeplearning_oct_2024/CHADI_DeepLearning_Tree/yolo_semi_janv_2025/grid_320_semi.shp",      
+        band1 = 3,
+        band2 = 2,
+        band3 = 1,
         split_ratio = 0.75,
+
     )
 
 
 
-    train_image, test_image , dict_train, yolo_test, yolo_train, train_png = yolo_preprocessor.run_pipeline()
+    yolo_train,  yolo_test, train_image, test_image = yolo_preprocessor.run_pipeline()
