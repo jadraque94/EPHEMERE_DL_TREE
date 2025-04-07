@@ -11,30 +11,31 @@ pip install -r requirements.txt
 
 ## Description
 
-The first part consists, from three differents to create a pipelinea file structure the correct grid and the shapefile containing the polygons associated as a crowns of trees to create our dataset where there are our trainset, testset and the unlabelset.
+The first part consists, from three different inputs (Satellite image, a grid for dividing the satellite image in a small image a polygon and batch of trees) and create the following file structure 
 
 
-SS-YOLO/
-├── dataset/
-│   ├── images/
-│   │   ├── train/
-│   │   │   ├── image1.jpg
-│   │   │   └── image2.jpg
-│   │   └── test/
-│   │       ├── image101.jpg
-│   │       └── image102.jpg
-│   │
-│   ├── labels/
-│   │   ├── train/
-│   │   │   ├── image1.txt
-│   │   │   └── image2.txt
-│   │   └── test/
-│   │       ├── image101.txt
-│   │       └── image102.txt
-│   │
-│   └── unlabel/
-│       ├── image_unlabeled1.jpg
-│       └── image_unlabeled2.jpg
-│
-├── data.yaml
-└── train.py
+dataset/
+   ├── images/
+   │   ├── train/
+   │   │   ├── image1.jpg
+   │   │   └── image2.jpg
+   │   └── test/
+   │       ├── image101.jpg
+   │       └── image102.jpg
+   │
+   ├── labels/
+   │   ├── train/
+   │   │   ├── image1.txt
+   │   │   └── image2.txt
+   │   └── test/
+   │       ├── image101.txt
+   │       └── image102.txt
+   │
+   └── unlabel/
+       ├── image_unlabeled1.jpg
+       └── image_unlabeled2.jpg
+
+
+Thus, 
+
+
