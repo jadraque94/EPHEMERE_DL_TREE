@@ -15,7 +15,32 @@ The first part consists, from three different inputs (Satellite image, a grid fo
 
 
 
-![image](https://github.com/user-attachments/assets/c1afb91d-5239-44cb-9ab2-2d877e7fbe38)
+dataset/
+   ├── images/
+   │   ├── train/
+   │   │   ├── image1.jpg
+   │   │   └── image2.jpg
+   │   └── test/
+   │       ├── image101.jpg
+   │       └── image102.jpg
+   │
+   ├── labels/
+   │   ├── train/
+   │   │   ├── image1.txt
+   │   │   └── image2.txt
+   │   └── test/
+   │       ├── image101.txt
+   │       └── image102.txt
+   │
+   ├── new_datas/
+   │   ├── train/
+   │   └── test/
+   │
+   └── unlabel/
+       ├── image_unlabeled1.jpg
+       └── image_unlabeled2.jpg
+
+
 
 
 Thus, 
