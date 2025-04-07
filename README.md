@@ -11,7 +11,7 @@ pip install -r requirements.txt
 
 ## Description
 
-The first part consists, from three different inputs (Satellite image, a grid for dividing the satellite image in a small image a polygon and batch of trees) and create the following file structure 
+The first part consists from this three different inputs (Satellite image, a grid for dividing the satellite image into small images and a batch of trees) to create the following file structure :
 
 
 ![Image](https://github.com/user-attachments/assets/d815961a-3ceb-4c26-ba5d-ccd96e33d16b)
