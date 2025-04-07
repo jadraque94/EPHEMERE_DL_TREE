@@ -23,6 +23,6 @@ Thus, the function SS_yolo.py and SS_yolo_function.py allow to train the semi-su
 
 ## Output
 
-You have in the folder Results, some examples of tree detection images generated and their probability of distribution.
+You have in the folder Results, some examples of tree detection images predicted and their probability of distribution.
 
 
