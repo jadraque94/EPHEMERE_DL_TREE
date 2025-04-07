@@ -18,7 +18,7 @@ The first part consists from this three different inputs (Satellite image, a gri
 
 
 
-
+New_datas allow us just to store the images from the unlabeled dataset and in the txt file the score of mAP on the testset at the end of each iteration, the number and the name of the images which overcome the conditions of the detection before being injected in the trainset and also store. 
 Thus, the function SS_yolo.py and SS_yolo_function.py allow to train the semi-supervised model with YOLOv8.
 
 ## Output
