@@ -19,7 +19,7 @@ The first part consists, from three different inputs (Satellite image, a grid fo
 
 
 
-Thus, fucntion SS_yolo.py and SS_yolo_function.py allow to train the semi-supervised model with YOLOv8.
+Thus, the function SS_yolo.py and SS_yolo_function.py allow to train the semi-supervised model with YOLOv8.
 
 ## Output
 
