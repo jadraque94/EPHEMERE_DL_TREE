@@ -14,35 +14,15 @@ pip install -r requirements.txt
 The first part consists, from three different inputs (Satellite image, a grid for dividing the satellite image in a small image a polygon and batch of trees) and create the following file structure 
 
 
-
-dataset/
-   ├── images/
-   │   ├── train/
-   │   │   ├── image1.jpg
-   │   │   └── image2.jpg
-   │   └── test/
-   │       ├── image101.jpg
-   │       └── image102.jpg
-   │
-   ├── labels/
-   │   ├── train/
-   │   │   ├── image1.txt
-   │   │   └── image2.txt
-   │   └── test/
-   │       ├── image101.txt
-   │       └── image102.txt
-   │
-   ├── new_datas/
-   │   ├── train/
-   │   └── test/
-   │
-   └── unlabel/
-       ├── image_unlabeled1.jpg
-       └── image_unlabeled2.jpg
+![Image](https://github.com/user-attachments/assets/d815961a-3ceb-4c26-ba5d-ccd96e33d16b)
 
 
 
 
-Thus, 
+Thus, fucntion SS_yolo.py and SS_yolo_function.py allow to train the semi-supervised model with YOLOv8.
+
+## Output
+
+You have in the folder Results, some examples of tree detection images generated and their probability of distribution.
 
 
