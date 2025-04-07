@@ -94,7 +94,6 @@ class YoloProcessor:
 
     def separate_grid_unlabel_label(self, array, dicti) -> [np.ndarray, pd.DataFrame, np.ndarray, dict, dict ] : #we will separate image regarding as there are any wrosnw of tree which has been delineated and store in unlabel or label dataset
         shape_tree = gpd.read_file(self.path_tree) #shapefile which contains the 524 polygons which represents every tree
-        print("Nombre d'arbres délinées :", shape_tree.shape)
 
         valid_gdf = gpd.GeoDataFrame(columns=["id", 'geometry', 'number_label'], geometry='geometry', crs=shape_tree.crs)
 
@@ -169,20 +168,21 @@ class YoloProcessor:
 
 
 
-    def convert_yolo(self, gdf_train, dicti_train):
+    def convert_yolo(self, gdf, dicti) -> list: #convert format shapefile into yolo format
 
         ## pour train
-        length = len(gdf_train.groupby('number_label').size()) # we will convert every polygon into yolo format, we have gather for each image their polygons associated by the same label number
+        length = len(gdf.groupby('number_label').size()) # we will convert every polygon into yolo format, we have gather for each image their polygons associated by the same label number
         list_yolo = []
         for i in tqdm(range(length)):
-            data = gdf_train[gdf_train['number_label'] == i]
+            index = np.unique(gdf.number_label)[i]
+            data = gdf[gdf['number_label'] == index ]
             yolo_annotations = []
             for _, row in data.iterrows():
                 polygon = row['geometry']
                 class_id = int(row['id']) - 1 #on initalise à 0 car id est 1 et pour utiliser yolo l'identifiant de la premiere classe doit est 0
-                image_height = dicti_train[i,f'bounds{i}'][0]['height']
-                image_width = dicti_train[i,f'bounds{i}'][0]['width']
-                image_transform = dicti_train[i,f'bounds{i}'][0]['transform']
+                image_height = dicti[index,f'bounds{index}'][0]['height']
+                image_width = dicti[index,f'bounds{index}'][0]['width']
+                image_transform = dicti[index,f'bounds{index}'][0]['transform']
 
                 center_x, center_y, bbox_width, bbox_height = self.polygon_to_yolo(
                     polygon, image_width, image_height, image_transform
@@ -207,8 +207,10 @@ class YoloProcessor:
                     values = annotation.split()
                     if len(values) == 5:  # Ensure it has exactly 5 elements
                         class_id, center_x, center_y, bbox_width, bbox_height = map(float, values)
+                        class_id = int(class_id)
                         yolo_line = f"{class_id} {center_x} {center_y} {bbox_width} {bbox_height}"
-                    f.write(f"{yolo_line}\n")
+                        print(yolo_line)
+                        f.write(f"{yolo_line}\n")
 
 
 
@@ -222,16 +224,16 @@ class YoloProcessor:
         yolo_test = self.convert_yolo(gdf_test,dict_test)
 
 
-        return yolo_train, yolo_test, train_image, test_image, image_unlab
+        return yolo_train, yolo_test, train_image, test_image, gdf_test, dict_test, gdf_train
 
 # Utilisation de la classe
 if __name__ == "__main__":
 
     #
     yolo_preprocessor = YoloProcessor(
-        path_tif="C:/Users/rahim/Deeplearning_oct_2024/Pleiade_2023_geo/Pleiades_Vue1_2023/Pansharpen_Vue1_20230214_0534580_Ortho.tif",
-        path_tree="C:/Users/rahim/Deeplearning_oct_2024/Pleiade_2023_geo/TreeSample_ImagePleiade14feb2023_Pansharpen.shp",
-        path_grid="C:/Users/rahim/Deeplearning_oct_2024/CHADI_DeepLearning_Tree/yolo_semi_janv_2025/grid_320_semi.shp",      
+        path_tif="image.tif",
+        path_tree="tree.shp",
+        path_grid="grid.shp",      
         band1 = 3,
         band2 = 2,
         band3 = 1,
@@ -240,5 +242,4 @@ if __name__ == "__main__":
     )
 
 
-
-    yolo_train,  yolo_test, train_image, test_image = yolo_preprocessor.run_pipeline()
+    yolo_preprocessor.run_pipeline()
