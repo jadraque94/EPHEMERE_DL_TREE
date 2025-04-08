@@ -17,7 +17,7 @@ import geopandas as gpd
 class YoloProcessor:
     
     
-    def __init__(self, path_tif, path_grid, path_tree, band1 , band2, band3 , split_ratio = 0.75,  output='./image_test/'):
+    def __init__(self, path_tif, path_tree, path_grid, band1 , band2, band3 , split_ratio = 0.75):
         self.path_tif = path_tif
         self.path_tree = path_tree
         self.path_grid = path_grid
@@ -26,14 +26,14 @@ class YoloProcessor:
         self.band3 = band3
         self.split_ratio = split_ratio
 
-
-        self.output = Path(output)
     
 
 
 
     def extract_images(self)-> [ np.ndarray, dict] : # we will store the small images cutting by the grid in image_array and store the metadata and corner associated at each image and the
-        grid = gpd.read_file(self.path_grid).head(100) #100 premières images pour vérifier
+
+        grid = gpd.read_file(self.path_grid).head(100) 
+        """"""""""'''   100 premières images pour vérifier   '''"""""""""
 
         image_array = []
         dict_transform = {}
@@ -49,7 +49,7 @@ class YoloProcessor:
                     keep_image = out_image[:,:,row_keep]
                     band_normalized = cv2.normalize(keep_image, None, 0, 255, cv2.NORM_MINMAX).astype(np.uint8)
 
-                    print(band_normalized.shape)
+                    #print(band_normalized.shape)
                     out_meta = src.meta.copy()
                     out_meta.update({
                         "driver": "GTiff",
@@ -66,10 +66,9 @@ class YoloProcessor:
             
                 
                 
-                elif  out_image.shape[2] <=3 :
+                elif  out_image.shape[2] <=3 : # image has 3 or less bands, yolo can just be feed with image with 3 bands or less
                     band_normalized = cv2.normalize(out_image, None, 0, 255, cv2.NORM_MINMAX).astype(np.uint8)
 
-                    print(band_normalized.shape)
                     out_meta = src.meta.copy()
                     out_meta.update({
                         "driver": "GTiff",
@@ -112,7 +111,6 @@ class YoloProcessor:
                 xmin_p, ymin_p = np.array(geometry.exterior.coords).min(axis=0)
                 xmax_p, ymax_p = np.array(geometry.exterior.coords).max(axis=0)
 
-                #print(xmin_r, xmin_p, xmax_r)
 
                 if xmin_r <= xmin_p <= xmax_r and ymin_r <= ymin_p <= ymax_r and xmin_r <= xmax_p <= xmax_r and ymin_r <= ymax_p <= ymax_r : # condition : every corner of the crowns should be inside of the image
                     valid_polygons.append(row)
@@ -126,8 +124,6 @@ class YoloProcessor:
                 valid_gdf = pd.concat([valid_gdf,new_data], ignore_index=True) 
                 dicti_lab[len(label_image),f'bounds{len(label_image)}'] = dicti[i, f'bounds{i}']
                 label_image.append(array[i])
-
-
                 print(len(valid_polygons), i)
 
 
@@ -165,9 +161,6 @@ class YoloProcessor:
 
         return center_x, center_y, bbox_width, bbox_height
     
-
-
-
     def convert_yolo(self, gdf, dicti) -> list: #convert format shapefile into yolo format
 
         ## pour train
@@ -179,7 +172,7 @@ class YoloProcessor:
             yolo_annotations = []
             for _, row in data.iterrows():
                 polygon = row['geometry']
-                class_id = int(row['id']) - 1 #on initalise à 0 car id est 1 et pour utiliser yolo l'identifiant de la premiere classe doit est 0
+                class_id = int(row['id']) - 1 #on initalise à 0 car l'identifiant est 1 et pour utiliser yolo l'identifiant de la premiere classe doit est 0
                 image_height = dicti[index,f'bounds{index}'][0]['height']
                 image_width = dicti[index,f'bounds{index}'][0]['width']
                 image_transform = dicti[index,f'bounds{index}'][0]['transform']
@@ -194,13 +187,13 @@ class YoloProcessor:
 
     
     @staticmethod
-    def create_folder(label, output):
+    def create_folder_txt(label, output) -> list: # for creating folder for all of the label file 
 
         os.makedirs(output, exist_ok =True)
         for t in tqdm(range(len(label))):
 
             output_txt_path = os.path.join(output,f'image{t}.txt')
-            # print(output_txt_path)
+
             with open(output_txt_path, 'w') as f:
                 for annotation in label[t] :
 
@@ -211,12 +204,38 @@ class YoloProcessor:
                         yolo_line = f"{class_id} {center_x} {center_y} {bbox_width} {bbox_height}"
                         print(yolo_line)
                         f.write(f"{yolo_line}\n")
+    
+    @staticmethod
+    def create_folder_image(image, dicti_image, output) -> list : # for creating folder for all of the label file 
+
+        os.makedirs(output, exist_ok = True)
+        for t in tqdm(range(len(image))):
+
+            new_im = np.expand_dims(image[t], axis=0)
+            output_image_path = os.path.join(output,f'image{t}.png')
+            
+            index = list(dicti_image.items())[t][1][0]
 
 
+            with rasterio.open(output_image_path,
+                'w', 
+                driver = index['driver'],
+                height = index['height'],
+                width = index['width'],
+                count = index['count'],  
+                dtype = 'uint8',
+                crs = index['crs'],
+                transform = index['transform'],
+            ) as dst :
+                dst.write(new_im)
+               
+    
 
-    def run_pipeline(self):
+    def run_pipeline(self) :
         print("Extraction des images...")
         image_array , dicti = self.extract_images()
+
+        print("Change")
 
         image_lab , gdf, image_unlab, dicti_lab, dicti_unlab = self.separate_grid_unlabel_label(image_array, dicti)
         train_image, test_image , dict_train, dict_test , gdf_train , gdf_test = self.train_test_split( gdf, image_lab, dicti_lab )
@@ -230,10 +249,13 @@ class YoloProcessor:
 if __name__ == "__main__":
 
     #
+    path_grid = "C:/Users/rahim/Deeplearning_oct_2024/CHADI_DeepLearning_Tree/yolo_semi_janv_2025/grid_320_semi.shp"
+    grid = gpd.read_file(path_grid).head(100)
+    print(grid)
     yolo_preprocessor = YoloProcessor(
-        path_tif="image.tif",
-        path_tree="tree.shp",
-        path_grid="grid.shp",      
+        path_tif = "C:/Users/rahim/Deeplearning_oct_2024/Pleiade_2023_geo/Pleiades_Vue3_2023/Pansharpen_Vue3_20230214_0535143_Ortho.tif",
+        path_grid = "C:/Users/rahim/Deeplearning_oct_2024/CHADI_DeepLearning_Tree/yolo_semi_janv_2025/grid_320_semi.shp",
+        path_tree = "C:/Users/rahim/Deeplearning_oct_2024/Pleiade_2023_geo/TreeSample_ImagePleiade14feb2023_Pansharpen.shp",      
         band1 = 3,
         band2 = 2,
         band3 = 1,
@@ -241,5 +263,4 @@ if __name__ == "__main__":
 
     )
 
-
-    yolo_preprocessor.run_pipeline()
+    yolo_train, yolo_test, train_image, test_image, gdf_test, dict_test, gdf_train = yolo_preprocessor.run_pipeline()

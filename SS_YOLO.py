@@ -14,18 +14,18 @@ def extract_number(filename):
     match = re.search(r"(\d+)(?=\.\w+$)", filename)  # Finds digits before file extension
     return int(match.group(1)) if match else float('inf')  # Use 'inf' if no number found
 
-name_save = 'runs_last_11'
+name_save = 'runs'
 
 proba_accept = 0.7 #the mAP coefficient should be at 0.7
-image_unlabel_path = './dataset_enhanced/unlabel/*'
-image_label_path = './dataset_enhanced/images/train/*'
-txt_label_path = './dataset_enhanced/labels/train/*'
+image_unlabel_path = './dataset/unlabel/*'
+image_label_path = './dataset/images/train/*'
+txt_label_path = './dataset/labels/train/*'
 
 
 for i in range(8): #use preferably while loop while 
 
     if i == 0:
-        model_weighted = YOLO("yolo11m.pt")  # Use the `.yaml` config file directly
+        model_weighted = YOLO("yolo8m.pt")  # Use the `.yaml` config file directly
 
     else :
         weight = f'./{name_save}/tree_detect{i-1}/weights/best.pt'
@@ -74,8 +74,8 @@ for i in range(8): #use preferably while loop while
                 bboxes_yolo.append(yolo_line)
 
                 ### FIRST, for observing purposes, we will store thoses images and labels in 
-                output_txt = f'./dataset_enhanced/new_datas/train_box/image{image_label_idx}.txt' # we will
-                output_image = f'./dataset_enhanced/new_datas/train_image/image{image_label_idx}.png' 
+                output_txt = f'./dataset/new_datas/train_box/image{image_label_idx}.txt' # we will
+                output_image = f'./dataset/new_datas/train_image/image{image_label_idx}.png' 
 
                 image_label_idx += 1
                 print(image_label_idx)
@@ -87,7 +87,7 @@ for i in range(8): #use preferably while loop while
             shutil.move(images_unlabel[j], output_image)
 
             ## we will count wich images has been    
-            with open(f'./dataset_enhanced/new_datas/train_confidence_yolo_11_{i}.txt', 'a') as f:
+            with open(f'./dataset/new_datas/train_confidence_yolo_11_{i}.txt', 'a') as f:
                 f.write(f"the unlabeled image number {j} has fullfilled the condition and {output_image} and its label are {output_txt} \n")
                 
 
@@ -112,8 +112,8 @@ for i in range(8): #use preferably while loop while
                 bboxes_yolo.append(yolo_line)
 
                 ### FIRST, for observing purposes, we will store thoses images and labels in 
-                output_txt = f'./dataset_enhanced/new_datas/train_box/image{image_label_idx}.txt' # we will
-                output_image = f'./dataset_enhanced/new_datas/train_image/image{image_label_idx}.png' 
+                output_txt = f'./dataset/new_datas/train_box/image{image_label_idx}.txt' # we will
+                output_image = f'./dataset/new_datas/train_image/image{image_label_idx}.png' 
 
                 image_label_idx += 1
                 print(image_label_idx)
@@ -125,7 +125,7 @@ for i in range(8): #use preferably while loop while
             shutil.move(images_unlabel[j], output_image)
 
             ## we will count wich images has been    
-            with open(f'./dataset_enhanced/new_datas/train_confidence_yolo_11_{i}.txt', 'a') as f:
+            with open(f'./dataset/new_datas/train_confidence_yolo_11_{i}.txt', 'a') as f:
                 f.write(f"the unlabeled image number {j} has fullfilled the condition and {output_image} and its label are {output_txt} \n")
         
 
@@ -133,7 +133,7 @@ for i in range(8): #use preferably while loop while
     # we will store in the folder new_datas the unlabel datas which has outpaced the condition of SS
 
     #we will inject the datas which has outpaced our conditions
-    SS_YOLO_function.index_image(path_image_output = image_label_path, path_image_input = './dataset_enhanced/new_datas/train_image/*', path_txt_output = './dataset_enhanced/labels/train/*', path_txt_input ='./dataset_enhanced/new_datas/train_box/*' )
+    SS_YOLO_function.index_image(path_image_output = image_label_path, path_image_input = './dataset/new_datas/train_image/*', path_txt_output = './dataset/labels/train/*', path_txt_input ='./dataset/new_datas/train_box/*' )
 
 
 
@@ -141,15 +141,11 @@ for i in range(8): #use preferably while loop while
     metrics_test = model_weighted.val(data = 'trees.yaml', split = 'val')
     #metrics_unlabel = model_weighted.predict(source = './dataset_SS/unlabel')
 
-    #print('le nombre de la metrics non labelisé est :', metrics_test)
 
     prec_test = metrics_test.box.map50
-    #prec_unlab = metrics_unlabel.box.map50
-
-    #metrics_final = abs(prec_test - prec_unlab)
 
     print(' la difference de de précision générales entre les données tests et non_labélisées', prec_test , '/n')
-    with open(f'./dataset_enhanced/new_datas/train_conf_yolo_11_{i}.txt', 'a') as f:
+    with open(f'./dataset/new_datas/train_conf_yolo_11_{i}.txt', 'a') as f:
         f.write(f"the round {i} and the  {prec_test}\n")
 
 
