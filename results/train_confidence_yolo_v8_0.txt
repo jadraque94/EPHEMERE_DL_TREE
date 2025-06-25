@@ -1,4 +1,0 @@
-the unlabeled image number 234 has fullfilled the condition and ./dataset_ortho/new_datas/train_image/image92.png and its label are ./dataset_ortho/new_datas/train_box/image92.txt 
-the unlabeled image number 489 has fullfilled the condition and ./dataset_ortho/new_datas/train_image/image93.png and its label are ./dataset_ortho/new_datas/train_box/image93.txt 
-the unlabeled image number 683 has fullfilled the condition and ./dataset_ortho/new_datas/train_image/image94.png and its label are ./dataset_ortho/new_datas/train_box/image94.txt 
-the unlabeled image number 1347 has fullfilled the condition and ./dataset_ortho/new_datas/train_image/image95.png and its label are ./dataset_ortho/new_datas/train_box/image95.txt 

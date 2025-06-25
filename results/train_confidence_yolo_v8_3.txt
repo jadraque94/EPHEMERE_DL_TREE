@@ -1,1 +1,0 @@
-the unlabeled image number 39 has fullfilled the condition and ./dataset_ortho/new_datas/train_image/image122.png and its label are ./dataset_ortho/new_datas/train_box/image122.txt 
