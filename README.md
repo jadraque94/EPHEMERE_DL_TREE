@@ -12,7 +12,7 @@ This method achieved to obtained a precision of 87,4%, a recall of 80.1% and a M
 
 ## Installation
 
-'pip install -r requirements.txt'
+`pip install -r requirements.txt`
 
 ## Description
 
