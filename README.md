@@ -12,20 +12,50 @@ This method achieved to obtained a precision of 87,4%, a recall of 80.1% and a M
 
 ## Installation
 
-`pip install -r requirements.txt`
+    pip install -r requirements.txt
 
 ## Description
 
-The first part consists from this three different inputs (Satellite image, a grid for dividing the satellite image into small images and a batch of trees) to create the following file structure :
+The structure of the data follows this architecture are 
 
+    dataset/
+      |---images/
+      |  |---train/
+      |  |   |---image1.png
+      |  |   |---image2.png
+      |  |
+      |  |---test/
+      |      |---image1.png
+      |      |---image2.png     
+      |
+      |---labels/
+      |   |---train/
+      |   |   |---image1.png
+      |   |   |---image2.png
+      |   |
+      |   |---test/
+      |       |---image1.png
+      |       |---image2.png  
+      |   
+      |---new-datas/
+      |   |---train/
+      |   |---test/
+      |
+      |---unlabel/
+          |---image1.png
+          |---image2.png
 
 ![Image](https://github.com/user-attachments/assets/d815961a-3ceb-4c26-ba5d-ccd96e33d16b)
 
+## Using your own data
 
+To train on your own data, you will need to organize the data into the format expected by pipeline_class.py.
 
-New_datas allow us just to store the images from the unlabeled dataset and in the txt file the score of mAP on the testset at the end of each iteration, the number and the name of the images which overcome the conditions of the detection before being injected in the trainset. 
-Thus, the function SS_yolo.py and SS_yolo_function.py allow to train this active learning methpod with YOLOv11.
+* All the images should have the same size (eg: 320x320, 640x640, etc...).
 
+* The code is currently designed for three-band imagery. To handle less bands, you would need to modify the function in `YOLO_SS_class/pipeline_class.py`.
+
+*Create the structure accordingly to the structure above with all of the output files obtained with `YOLO_SS_class/pipeline_class.py` and also add the yaml.
 ## Output
 
 You have in the folder Results, some examples of tree detection images predicted and their probability of distribution.
