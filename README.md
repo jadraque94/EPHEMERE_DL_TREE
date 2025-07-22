@@ -45,7 +45,6 @@ The structure of the data follows this architecture are
           |---image1.png
           |---image2.png
 
-![Image](https://github.com/user-attachments/assets/d815961a-3ceb-4c26-ba5d-ccd96e33d16b)
 
 ## Using your own data
 
