@@ -54,7 +54,7 @@ To train on your own data, you will need to organize the data into the format ex
 
 * The code is currently designed for three-band imagery. To handle less bands, you would need to modify the function in `YOLO_SS_class/pipeline_class.py`.
 
-*Create the structure accordingly to the structure above with all of the output files obtained with `YOLO_SS_class/pipeline_class.py` and also add the yaml.
+* Create the structure accordingly to the structure above with all of the output files obtained with `YOLO_SS_class/pipeline_class.py` and also add the yaml.
 ## Output
 
 You have in the folder Results, some examples of tree detection images predicted and their probability of distribution.
