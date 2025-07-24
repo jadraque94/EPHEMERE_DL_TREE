@@ -48,7 +48,8 @@ The structure of the data follows this architecture are
 
 ## Using your own data
 
-To train on your own data, you will need to organize the data into the format expected by pipeline_class.py.
+To train on your own data, you will need to have the required input datas into the format expected by `pipeline_class.py`.
+The outputs of the `pipeline_class.py` will give you the train and test images and labels and the unlabel dataset needed to launch the active-learning code `SS_yolo_active_learning.py`
 
 * All the images should have the same size (eg: 320x320, 640x640, etc...).
 
