@@ -30,16 +30,16 @@ The structure of the data follows this architecture are
       |
       |---labels/
       |   |---train/
-      |   |   |---image1.png
-      |   |   |---image2.png
+      |   |   |---image1.txt
+      |   |   |---image2.txt
       |   |
       |   |---test/
-      |       |---image1.png
-      |       |---image2.png  
+      |       |---image1.txt
+      |       |---image2.txt  
       |   
       |---new-datas/
-      |   |---train/
-      |   |---test/
+      |   |---images/
+      |   |---labels/
       |
       |---unlabel/
           |---image1.png
