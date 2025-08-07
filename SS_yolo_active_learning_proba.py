@@ -439,6 +439,8 @@ class SemiSupervisedTrainer:
         lines = []
         for x1, y1, x2, y2 in result.boxes.xyxy.tolist():
             xc = (x1 + x2) / 2 / w
+            yc = (y1 + y2) / 2 / h
+            wd = (x2 - x1) / w
             ht = (y2 - y1) / h
             lines.append(f"0 {xc} {yc} {wd} {ht}")
         label_file = self.data_manager.labels_train / new_name.replace('.png', '.txt')
@@ -454,13 +456,13 @@ if __name__ == '__main__':
     start_time = time.time()
     trainer = SemiSupervisedTrainer(
         initial_weights = './weight/yolo11m.pt',  # Initial weights
-        epochs_per_iter = 4,                       # Number of epochs per iteration
+        epochs_per_iter = 20,                       # Number of epochs per iteration
         thresh_init_high = 0.75,
         thresh_init_low = 0.25,
         top_value = 0.05,
         min_boxes = 2,                                               # Minimum number of boxes to accept pseudo-labeling
         data_dir = base / './Pleiade_yolo_1300/',                    # Directory with initial labeled data
-        save_folder = Path('run_v11m_test_1300_proba_test_1'),                          # Directory to save the model and results
-        dataset_dir = base / 'run_v11m_test_1300_proba_test_1' / 'new_dataset'          # Directory for the new dataset
+        save_folder = Path('run_v11m_test_1300_predic_proba'),                          # Directory to save the model and results
+        dataset_dir = base / 'run_v11m_test_1300_predic_proba' / 'new_dataset'          # Directory for the new dataset
     )
-    trainer.run(total_iterations=5, batch_size=32)
+    trainer.run(total_iterations=10, batch_size=16)

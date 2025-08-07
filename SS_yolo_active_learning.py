@@ -315,7 +315,7 @@ class SemiSupervisedTrainer:
         for i in range(0, len(files), batch_size):
             batch = files[i:i + batch_size]
             results = self.model_handler.model.predict(
-                source=[str(p) for p in batch], task='segment', verbose=True, iou = 0.4, conf = 0.2, retina_masks =True)
+                source=[str(p) for p in batch], task='segment', verbose=True, iou = 0.3, conf = 0.3, retina_masks =True)
             for result, img_path in zip(results, batch):
                 name = img_path.name
                 if name in self.mapping.processed:
@@ -323,13 +323,12 @@ class SemiSupervisedTrainer:
                 confs = result.boxes.conf.tolist()
                 thresh_low = self.list_min_proba[iteration]
                 thresh_high = self.list_max_proba[iteration]
-                needed = self.min_boxes + (1 if iteration >= 2 else 0)
+                needed = self.min_boxes + (1 if iteration >= 4 else 0)
                 if all(c < thresh_low for c in confs) and len(confs) >= needed:
                     print(confs,'le numero est :', self.next_index)
                     new_name = f"image{self.next_index}.png"
-                    label_file, image_file = self._save_pseudo_label(result, img_path, new_name)
-                    self.visualize(label_file,image_file)
-                    input()
+                    _, _ = self._save_pseudo_label(result, img_path, new_name)
+                    #self.visualize(label_file,image_file)
                     self.next_index += 1
                     self.mapping.update(name, new_name, iteration, len(confs), thresh_low, needed)
                     added += 1
@@ -342,12 +341,11 @@ class SemiSupervisedTrainer:
                     self.mapping.update(name, new_name, iteration, len(confs), thresh_high, needed)
                     added += 1
                 
-                elif len(confs) >= self.max_boxes and iteration >= 2 : #condition nouvelle pour verifier
+                elif len(confs) >= self.max_boxes and iteration >= 3 : #condition nouvelle pour verifier
                     print(confs)
                     new_name = f"image{self.next_index}.png"
-                    label_2 , image_2 = self._save_pseudo_label(result, img_path, new_name)
-                    self.visualize(label_2,image_2)
-                    input()
+                    _ , _ = self._save_pseudo_label(result, img_path, new_name)
+                    #self.visualize(label_2,image_2)
                     self.next_index += 1
                     self.mapping.update(name, new_name, iteration, len(confs), thresh_high, needed)
                     added += 1
@@ -365,8 +363,8 @@ class SemiSupervisedTrainer:
             wd = (x2 - x1) / w
             ht = (y2 - y1) / h
             lines.append(f"0 {xc} {yc} {wd} {ht}")
-        label_file = self.data_manager.folder_label / new_name.replace('.png', '.txt')
-        image_file = self.data_manager.folder_image / new_name
+        label_file = self.data_manager.labels_train / new_name.replace('.png', '.txt')
+        image_file = self.data_manager.images_train / new_name
         with open(label_file, 'w') as f:
             f.write("\n".join(lines))
         shutil.copy2(img_path, image_file)
@@ -377,14 +375,14 @@ if __name__ == '__main__':
     base = Path('C:/Users/rahim/Deeplearning_oct_2024/DeepLearning_EPHEMERE_Tree/Programme_git/EPHEMERE_DL_TREE')
     trainer = SemiSupervisedTrainer(
         initial_weights = './weight/yolo11m.pt',  # Initial weights
-        epochs_per_iter = 3, 
+        epochs_per_iter = 25, 
         proba = 0.30,                                       # Number of epochs per iteration
-        list_min_proba = np.linspace(0.3, 0.4, 15),                         # Confidence threshold for pseudo-labeling
-        list_max_proba = np.linspace(0.65, 0.75, 15),
+        list_min_proba = np.linspace(0.35, 0.45, 10),                         # Confidence threshold for pseudo-labeling
+        list_max_proba = np.linspace(0.65, 0.75, 10),
         max_boxes = 10,
         min_boxes = 2,                                               # Minimum number of boxes to accept pseudo-labeling
         data_dir = base / './Pleiade_yolo_last_trees/',                    # Directory with initial labeled data
-        save_folder = Path('run_v11m_test_conf_iou_0.4'),                          # Directory to save the model and results
-        dataset_dir = base / 'run_v11m_test_conf_iou_0.4' / 'new_dataset'          # Directory for the new dataset
+        save_folder = Path('run_v11m_test_conf_iou_0.3'),                          # Directory to save the model and results
+        dataset_dir = base / 'run_v11m_test_conf_iou_0.3' / 'new_dataset'          # Directory for the new dataset
     )
-    trainer.run(total_iterations=15, batch_size=16)
+    trainer.run(total_iterations=10, batch_size=16)

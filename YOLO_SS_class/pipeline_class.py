@@ -294,9 +294,9 @@ class YoloProcessor:
 # Utilisation de la classe
 if __name__ == "__main__":
 
-    path_tif_C1 = "orthoimage_forward.tif"
-    path_tif_C2 = "orthoimage_nadir.tif"
-    path_tif_C3 = "orthoimage_backward.tif"
+    path_tif_C1 = "C:/Users/rahim/Deeplearning_oct_2024/Pleiade_2023_geo/Pleiades_Vue1_2023/C1_orthoimage_forward.tif"
+    path_tif_C2 = "C:/Users/rahim/Deeplearning_oct_2024/Pleiade_2023_geo/Pleiades_Vue2_2023/C2_orthoimage_nadir.tif"
+    path_tif_C3 = "C:/Users/rahim/Deeplearning_oct_2024/Pleiade_2023_geo/Pleiades_Vue3_2023/C3_orthoimage_backward.tif"
     out_path_C1 = './last_whole_image_C1'
     out_path_C2 = './last_whole_image_C2'
     out_path_C3 = './last_whole_image_C3'
@@ -305,8 +305,8 @@ if __name__ == "__main__":
     test = 'test'
 
     yolo_preprocessor = YoloProcessor(
-        path_grid = "grid.shp",
-        path_tree = "TreeSample_last.shp",      
+        path_grid = "C:/Users/rahim/Deeplearning_oct_2024/CHADI_DeepLearning_Tree/yolo_semi_janv_2025/grid_320_semi.shp",
+        path_tree = "C:/Users/rahim/Deeplearning_oct_2024/CHADI_DeepLearning_Tree/yolo_semi_janv_2025/TreeSample_last.shp",      
         band1 = 3,
         band2 = 2,
         band3 = 1,
