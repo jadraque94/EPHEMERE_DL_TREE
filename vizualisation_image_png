@@ -5,15 +5,15 @@ import numpy as np
 
 
 # Step 1: Open the png 
-path = "./classe_pca/image10.png"
+path = "./essai/image0.png"
 image = cv2.imread(path)
 image_height, image_width = image.shape[:2]
 
 # Step 2: Read YOLO annotations from a file
-yolo_txt_path = './labels/train/image10.txt'
+yolo_txt_path = './essai/image0.txt'
 annotations = []
 
-with open(yolo_txt_path, 'r') as file:
+with open(yolo_txt_path, 'r') as file :
     for line in file:
         # Parse the YOLO annotation line
         class_id, center_x, center_y, bbox_width, bbox_height = map(float, line.split())
