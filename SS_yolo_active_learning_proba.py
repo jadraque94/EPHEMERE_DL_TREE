@@ -270,7 +270,7 @@ class SemiSupervisedTrainer:
         return round(self.epochs_per_iter * 1) #modify multiply by 1
     
     def visualize(self, label, image):
-        image = cv2.imread(image)
+        image = cv2.imread(f'{image}')
         print(image.shape)
         image_height, image_width = image.shape[:2]
         annotations = []
@@ -373,7 +373,7 @@ class SemiSupervisedTrainer:
         print('la taille des listes est :', len(low_name), len(low_proba), len(low_result))
 
         # 3. Save and visualize the lowest inference
-        for i in range(len(sorted_combined_list)):
+        for i in range(len(low_result)):
             new_name = f"image{self.next_index}.png"
             print('les nouveaux paths sont :', low_result, low_name)
             label_file , image_file = self._save_pseudo_label(low_result[i], low_name[i], new_name)
@@ -387,50 +387,6 @@ class SemiSupervisedTrainer:
 
         print(f"Iteration {iteration} added {added} images")
 
-        
-
-
-    def _process_unlabeled(self, iteration: int, batch_size: int , thresh_low, thresh_high) -> None:
-        liste_conf = []
-        # Gère la pseudo-labellisation des images non annotées
-        files = sorted(self.data_manager.unlabeled.glob('*'), key=lambda p: extract_indexed_number(p.name))
-        print(f"Unlabeled images: {len(files)}")
-        added = 0
-        self.next_index = self._count_initial_labels()
-
-        for i in range(0, len(files), batch_size):
-            batch = files[i:i + batch_size]
-            results = self.model_handler.model.predict(
-                source=[str(p) for p in batch], task='segment', verbose=True, iou = 0.3, conf = 0.2, retina_masks =True)
-            for result, img_path in zip(results, batch):
-                name = img_path.name
-                if name in self.mapping.processed:
-                    continue
-                confs = result.boxes.conf.tolist()
-                liste_conf.extend(np.round(confs,3))
-                needed = self.min_boxes #+ (1 if iteration >= 2 else 0)
-                # if all(c < thresh_low for c in confs) and len(confs) >= needed:
-                #     print(confs,'le numero est :', self.next_index)
-                #     new_name = f"image{self.next_index}.png"
-                #     _, _ = self._save_pseudo_label(result, img_path, new_name)
-                #     #self.visualize(label_file,image_file)
-                #     self.next_index += 1
-                #     self.mapping.update(name, new_name, iteration, len(confs), thresh_low, needed)
-                #     added += 1
-
-                if all(c > thresh_high for c in confs) and len(confs) >= needed :
-                    print(confs)
-                    new_name = f"image{self.next_index}.png"
-                    _, _ = self._save_pseudo_label(result, img_path, new_name)
-                    self.next_index += 1
-                    end_time = time.time() - start_time
-                    self.mapping.update(name, new_name, iteration, len(confs), thresh_high, needed, end_time)
-                    added += 1
-                
-        print('la liste ajoutée est :',liste_conf)
-
-        print(f"Iteration {iteration} added {added} images")
-        return liste_conf
 
 
     def _save_pseudo_label(self, result, img_path: Path, new_name: str) -> None:
@@ -452,17 +408,17 @@ class SemiSupervisedTrainer:
 
 
 if __name__ == '__main__':
-    base = Path('C:/Users/rahim/Deeplearning_oct_2024/DeepLearning_EPHEMERE_Tree/Programme_git/EPHEMERE_DL_TREE')
+    base = Path('C:/Users/Jadraque/IFP_projet_DL/EPHEMERE_DL_TREE')
     start_time = time.time()
     trainer = SemiSupervisedTrainer(
-        initial_weights = './weight/yolo11m.pt',  # Initial weights
+        initial_weights = './weights/yolo11m.pt',  # Initial weights
         epochs_per_iter = 20,                       # Number of epochs per iteration
         thresh_init_high = 0.75,
         thresh_init_low = 0.25,
         top_value = 0.05,
         min_boxes = 2,                                               # Minimum number of boxes to accept pseudo-labeling
-        data_dir = base / './Pleiade_yolo_1300/',                    # Directory with initial labeled data
-        save_folder = Path('run_v11m_test_1300_predic_proba'),                          # Directory to save the model and results
-        dataset_dir = base / 'run_v11m_test_1300_predic_proba' / 'new_dataset'          # Directory for the new dataset
+        data_dir = base / './Pleiade_yolo_1228/',                    # Directory with initial labeled data
+        save_folder = Path('run_v11m_test_1228_predic_high'),                          # Directory to save the model and results
+        dataset_dir = base / 'run_v11m_test_1228_predic_high' / 'new_dataset'          # Directory for the new dataset
     )
     trainer.run(total_iterations=10, batch_size=16)
