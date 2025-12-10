@@ -8,7 +8,7 @@ The worflow provided an active learning strategy using the prediction probabilit
 In our study site in Berambadi, an agricultural watershed in southern India (State of Karnataka), several Very-High Spatial Panchromatic Tri-Stereo images (50cm of spatial resolution) have been captured those last years on this site. 
 Those images have been divided into a two groups : the first group has just been injected into a large pool of unlabeled images and the second one, has been annoted and then injected into a small pool of labeled image for the training and the testing dataset.
 
-This method achieved to obtained a precision of 87,4%, a recall of 80.1% and a MAP50 of 87,9%.
+This method achieved to obtain a precision of 84,6%, a recall of 84.3% and a MAP50 of 85,7%.
 
 ## Installation
 
@@ -37,9 +37,6 @@ The structure of the data follows this architecture are
       |       |---image1.png
       |       |---image2.png  
       |   
-      |---new-datas/
-      |   |---train/
-      |   |---test/
       |
       |---unlabel/
           |---image1.png
