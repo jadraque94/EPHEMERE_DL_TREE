@@ -5,12 +5,12 @@ import numpy as np
 
 
 # Step 1: Open the png 
-path = "./run_v11m_test_1007_thresh_high/new_dataset/images/train/image148.png"
+path = "image.png"
 image = cv2.imread(path)
 image_height, image_width = image.shape[:2]
 
 # Step 2: Read YOLO annotations from a file
-yolo_txt_path = './run_v11m_test_1007_thresh_high/new_dataset/labels/train/image148.txt'
+yolo_txt_path = 'label.txt'
 annotations = []
 
 with open(yolo_txt_path, 'r') as file :
@@ -47,7 +47,7 @@ for annotation in annotations:
     x_min, y_min, x_max, y_max = yolo_to_pixel(center_x, center_y, bbox_width, bbox_height, image_width, image_height)
     
     # Create a rectangle patch and add it to the plot
-    rect = patches.Rectangle((x_min, y_min), x_max - x_min, y_max - y_min, linewidth=2, edgecolor='r', facecolor='none')
+    rect = patches.Rectangle((x_min, y_min), x_max - x_min, y_max - y_min, linewidth=3, edgecolor='r', facecolor='none')
     ax.add_patch(rect)
 
 # Show the final image with bounding boxes

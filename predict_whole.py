@@ -25,7 +25,7 @@ class Extract():
         self.band2 = band2
         self.band3 = band3
 
-    def extract_images(self, path, out_path) -> [np.ndarray, dict] : # we will store the small images cutting by the grid in image_array and store the metadata and corner associated at each image and the
+    def extract_images(self, path, out_path) -> tuple[list, dict] : # we will store the small images cutting by the grid in image_array and store the metadata and corner associated at each image and the
 
         grid = gpd.read_file(self.path_grid)
         image_array = []
@@ -50,7 +50,7 @@ class Extract():
                 if out_image.shape[2] > 3 : # multispectral case
                     row_keep = [self.band1,self.band2,self.band3]
                     keep_image = out_image[:,:,row_keep]
-                    band_normalized = cv2.normalize(keep_image, None, 0, 255, cv2.NORM_MINMAX).astype(np.uint8)
+                    band_normalized = cv2.normalize(keep_image, None, 0, 255, cv2.NORM_MINMAX).astype(np.uint8) # type: ignore
                     #print(band_normalized.shape)
                     out_meta = src.meta.copy()
 
@@ -73,7 +73,7 @@ class Extract():
 
                 elif  out_image.shape[2] == 1 : # image has 3 or less bands, yolo can just be feed with image with 3 bands or less
 
-                    band_normalized = cv2.normalize(out_image, None, 0, 255, cv2.NORM_MINMAX).astype(np.uint8)
+                    band_normalized = cv2.normalize(out_image, None, 0, 255, cv2.NORM_MINMAX).astype(np.uint8) # type: ignore
 
                     out_meta = src.meta.copy()
                     out_meta.update({
@@ -149,7 +149,7 @@ class Extract():
 
 
     @staticmethod
-    def extract_number(filename: str) -> int:
+    def extract_number(filename: str):
     # Extrait le premier nombre trouvé dans le nom de fichier (utile pour trier)
         match = re.search(r"(\d+)(?=\.)", filename)
         return int(match.group(1)) if match else float('inf')
@@ -177,7 +177,7 @@ class Extract():
                 transf = src.transform
                 bot = np.transpose(bo, (2,1,0))
 
-            results = self.model.predict(source = bot , task='segment', conf = 0.1, iou = 0.4 )
+            results = self.model.predict(source = bot , task='segment', conf = 0.2, iou = 0.4 )
 
             for result in results:
                 boxes = result.boxes  # List of bounding boxes in the format [x1, y1, x2, y2]
@@ -217,17 +217,21 @@ class Extract():
 
 if __name__ == "__main__":
 
-    path_tif_C1 = "C:/Users/rahim/Deeplearning_oct_2024/Pleiade_2023_geo/Pleiades_Vue1_2023/C1_orthoimage_forward.tif"
-    path_tif_C2 = "C:/Users/rahim/Deeplearning_oct_2024/Pleiade_2023_geo/Pleiades_Vue2_2023/C2_orthoimage_nadir.tif"
-    path_tif_C3 = "C:/Users/rahim/Deeplearning_oct_2024/Pleiade_2023_geo/Pleiades_Vue3_2023/C3_orthoimage_backward.tif"
-    out_path_C1 = './whole_image_C1_1300trees/'
-    out_path_C2 = './whole_image_C2_1300trees/'
-    out_path_C3 = './whole_image_C3_1300trees/'
+    # Panchro / Tri-stereo : forward, nadir, backward
+    # Multi/Hyperspectral : band1, band2; band3
+    # RGB : Red, Green, Blue
+
+    path_tif_C1 = "C1_orthoimage_forward.tif"
+    path_tif_C2 = "C2_orthoimage_nadir.tif"
+    path_tif_C3 = "C3_orthoimage_backward.tif"
+    out_path_C1 = './whole_image_C1/'
+    out_path_C2 = './whole_image_C2/'
+    out_path_C3 = './whole_image_C3/'
 
     whole_image = Extract(
-    output_tif_image = './whole_image_1000_tif/',
-    path_grid = "C:/Users/rahim/Deeplearning_oct_2024/CHADI_DeepLearning_Tree/yolo_semi_janv_2025/grid_semi_mai_2025.shp",
-    model = YOLO("C:/Users/rahim/Deeplearning_oct_2024/DeepLearning_EPHEMERE_Tree/Programme_git/EPHEMERE_DL_TREE/run_v11m_1300trees/tree_detect_it6/weights/best.pt"),
+    output_tif_image = 'whole_image_tif/',
+    path_grid = "grid.shp",
+    model = YOLO("./weight/yolo.pt"),
     band1 = 3,
     band2 = 2,
     band3 = 1,
@@ -246,6 +250,6 @@ if __name__ == "__main__":
     # new_dictionnary = whole_image.update_affine(dicti)
     # g2 = whole_image.predict(new_dictionnary, 'transform', './df_total_1300TREE.shp')
 
-    g2 = whole_image.predict('./df_1300_trees_conf_10.shp')
+    g2 = whole_image.predict('./map_predict.shp')
 
 

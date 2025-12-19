@@ -129,7 +129,7 @@ class ModelHandler:
             path = self.save_folder / f'tree_detect_it{iteration-1}' / 'weights' / 'best.pt'
             self.model = YOLO(str(path))
 
-    def train(self, data_config: Path, epochs: int, project: Path, name: str, augment: dict) -> None:
+    def train(self, data_config: Path, epochs: int, project: Path, name: str, augment: dict):
         # Entraîne le modèle avec les paramètres spécifiés
         self.model.train(
             data=str(data_config),
@@ -146,40 +146,12 @@ class ModelHandler:
             **augment
         )
 
-    def save(self, iteration: int) -> None:
+    def save(self, iteration: int):
         # Sauvegarde les poids du modèle entraîné
         target = self.save_folder / f'tree_detect_it{iteration}' / 'weights' / 'best.pt'
         target.parent.mkdir(parents=True, exist_ok=True)
         self.model.save(str(target))
 
-    def evaluate(self, data_config: Path, project: Path ) -> None:
-        # Évalue le modèle sur le jeu de validation et affiche le mAP50
-        metrics = self.model.val(
-            data=str(data_config),
-            split='val',
-            project=str(project),
-            save_json=True
-        )
-
-        print(f"mAP50: {metrics.box.map50:.4f}")
-        print(f'precision: {metrics.box.mp:.4f}')
-        print(f'recall: {metrics.box.mr:.4f}')
-
-        entry = {
-        'mAP50': metrics.box.map50,
-        'precision': metrics.box.mp,
-        'recall': metrics.box.mr,
-        'mAP50-95' : metrics.box.map
-        }
-        new_index = 0 if not self.csv_path.exists() else sum(1 for _ in open(self.csv_path))
-        row = {'index': new_index, **entry}
-        exists = self.csv_path.exists()
-        with open( self.csv_path , 'a', newline='') as f:
-            writer = csv.DictWriter(f, fieldnames=['index'] + list(entry))
-            if not exists:
-                writer.writeheader()
-            writer.writerow(row)
-        
         
 
 class SemiSupervisedTrainer:
@@ -250,7 +222,6 @@ class SemiSupervisedTrainer:
             self.data_manager.transfer_data_folder()
             #input()
 
-        self.model_handler.evaluate(self.data_manager.data_config, self.save_folder)
         end_time = time.time()
         execution_time = end_time - start_time
         print(f"The result is: {execution_time}")
@@ -316,12 +287,6 @@ class SemiSupervisedTrainer:
         return x_min, y_min, x_max, y_max
 
 
-    def update_thresh(self, lst_prob, iteration):
-        if iteration == 0:
-            return self.thresh_init_low, self.thresh_init_high
-        thresh_low = np.quantile(lst_prob[iteration-1],0.25)
-        thresh_high = np.quantile(lst_prob[iteration-1],0.75)
-        return thresh_low , thresh_high
     
     @staticmethod
     def _prob_score(liste) :
@@ -334,7 +299,7 @@ class SemiSupervisedTrainer:
         return lec
 
 
-    def _process_prediction_proba_based(self, iteration: int, batch_size: int) -> None:
+    def _process_prediction_proba_based(self, iteration: int, batch_size: int):
         liste_proba_score = []
         liste_result = []
         liste_name = []
@@ -366,7 +331,7 @@ class SemiSupervisedTrainer:
 
         sorted_combined_list = sorted(combined_list, key=lambda x: max(x[0]), reverse=True)
         sorted_liste_proba , reordered_liste_name, reordered_liste_result = zip(*sorted_combined_list)
-        low_proba = sorted_liste_proba[:int(len(sorted_liste_proba) * self.top_value)] #on prend les 10% premières valeurs qui correspond aux image ayant des detections les plus incertaines
+        low_proba = sorted_liste_proba[:int(len(sorted_liste_proba) * self.top_value)] #on prend les (top_value)% premières valeurs qui correspond aux image ayant des detections les plus incertaines
         low_name = reordered_liste_name[:int(len(reordered_liste_name) * self.top_value )]
         low_result = reordered_liste_result[:int(len(reordered_liste_result) * self.top_value)]
 
@@ -389,7 +354,7 @@ class SemiSupervisedTrainer:
 
 
 
-    def _save_pseudo_label(self, result, img_path: Path, new_name: str) -> None:
+    def _save_pseudo_label(self, result, img_path: Path, new_name: str):
         # Sauvegarde le fichier de pseudo-label au format YOLO et l'image correspondante
         w, h = result.orig_shape
         lines = []
@@ -408,17 +373,17 @@ class SemiSupervisedTrainer:
 
 
 if __name__ == '__main__':
-    base = Path('C:/Users/Jadraque/IFP_projet_DL/EPHEMERE_DL_TREE')
+    base = Path('main_folder/')
     start_time = time.time()
     trainer = SemiSupervisedTrainer(
-        initial_weights = './weights/yolo11m.pt',  # Initial weights
+        initial_weights = 'yolo11m.pt',  # Initial weights # type: ignore
         epochs_per_iter = 20,                       # Number of epochs per iteration
         thresh_init_high = 0.75,
         thresh_init_low = 0.25,
-        top_value = 0.05,
+        top_value = 0.02,
         min_boxes = 2,                                               # Minimum number of boxes to accept pseudo-labeling
-        data_dir = base / './Pleiade_yolo_1228/',                    # Directory with initial labeled data
-        save_folder = Path('run_v11m_test_1228_predic_high'),                          # Directory to save the model and results
-        dataset_dir = base / 'run_v11m_test_1228_predic_high' / 'new_dataset'          # Directory for the new dataset
+        data_dir = base / './directory_annotated_data/',                    # Directory with initial labeled data
+        save_folder = Path('save_folder'),                          # Directory to save the model and results
+        dataset_dir = base / 'save_folder' / 'new_dataset'          # Directory for the new dataset
     )
     trainer.run(total_iterations=10, batch_size=16)
