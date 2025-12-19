@@ -45,14 +45,15 @@ The structure of the data follows this architecture are
 
 ## Using your own data
 
-To train on your own data, you will need to have the required input datas into the format expected by `pipeline_class.py`.
+To train the model on our Deep Active Learning with your own data, if you didn't preprocess our data into the Yolo format and with the correct number of band, you might need to use the preprocessing function  `pipeline_class.py`.
+To use the function  `pipeline_class.py`, you will need to have your annotated data in shapefile format '.shp' and also provide a grid in a shapefile format '.shp' to divide the whole image.
 The outputs of the `pipeline_class.py` will give you the train and test images and labels and the unlabel dataset needed to launch the active-learning code `SS_yolo_active_learning.py`
 
 * All the images should have the same size (eg: 320x320, 640x640, etc...).
 
-* The code is currently designed for three-band imagery. To handle less bands, you would need to modify the function in `YOLO_SS_class/pipeline_class.py`.
+* The code is currently designed for three-band imagery. The input data supported by the algorithm should be in format '.tif' or 'geotiff' and to handle other formats, you would need to modify the functions in `pipeline_class.py`.
 
-* Create the structure accordingly to the structure above with all of the output files obtained with `YOLO_SS_class/pipeline_class.py` and also add the yaml.
+* Create the structure accordingly to the structure above with all of the output files obtained with `pipeline_class.py` and also add the yaml.
 ## Output
 
 You have in the folder Results, some examples of tree detection images predicted and their probability of distribution.
